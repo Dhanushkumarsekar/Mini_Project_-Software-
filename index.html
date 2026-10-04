@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure HR Employee Management Portal</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,Helvetica,sans-serif;
+ background:#f1f5f9;color:#172033
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.login{
+ min-height:100vh;display:flex;align-items:center;
+ justify-content:center;background:linear-gradient(135deg,#172554,#2563eb)
+}
+.login-box{
+ width:390px;background:white;padding:35px;border-radius:14px;
+ box-shadow:0 20px 50px #0004
+}
+.login-box h1{margin:0 0 8px;text-align:center;color:#172554}
+.login-box p{text-align:center;color:#64748b}
+.login-box input,.login-box select{
+ width:100%;padding:12px;margin:8px 0;border:1px solid #cbd5e1;
+ border-radius:7px
+}
+.login-btn{
+ width:100%;padding:12px;background:#2563eb;color:white;
+ border:0;border-radius:7px;margin-top:10px
+}
+.demo{
+ margin-top:20px;background:#eff6ff;padding:12px;
+ border-radius:7px;font-size:13px
+}
+.app{display:none}
+.header{
+ background:#172554;color:white;padding:15px 25px;
+ display:flex;justify-content:space-between;align-items:center
+}
+.header h2{margin:0}
+.user-info{text-align:right;font-size:13px}
+.logout{
+ background:#ef4444;color:white;border:0;padding:8px 13px;
+ border-radius:6px;margin-left:10px
+}
+.layout{display:flex;min-height:calc(100vh - 70px)}
+.sidebar{
+ width:230px;background:#0f172a;color:white;padding:15px
+}
+.sidebar button{
+ display:block;width:100%;text-align:left;padding:12px;
+ margin:5px 0;border:0;background:transparent;color:#cbd5e1;
+ border-radius:6px
+}
+.sidebar button:hover,.sidebar button.active{
+ background:#2563eb;color:white
+}
+.main{flex:1;padding:25px;overflow:auto}
+.page{display:none}
+.page.active{display:block}
+.cards{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:15px
+}
+.card{
+ background:white;padding:20px;border-radius:10px;
+ box-shadow:0 2px 8px #00000010
+}
+.card h3{margin:0;color:#64748b;font-size:14px}
+.card strong{display:block;font-size:30px;margin-top:10px}
+.panel{
+ background:white;padding:20px;margin-top:20px;
+ border-radius:10px;box-shadow:0 2px 8px #00000010
+}
+.panel h2{margin-top:0}
+.form-grid{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+}
+input,select{
+ width:100%;padding:10px;border:1px solid #cbd5e1;
+ border-radius:6px;background:white
+}
+.primary{
+ background:#2563eb;color:white;border:0;padding:10px 16px;
+ border-radius:6px
+}
+.success{
+ background:#16a34a;color:white;border:0;padding:7px 10px;
+ border-radius:5px
+}
+.danger{
+ background:#dc2626;color:white;border:0;padding:7px 10px;
+ border-radius:5px
+}
+.warning{
+ background:#d97706;color:white;border:0;padding:7px 10px;
+ border-radius:5px
+}
+.secondary{
+ background:#64748b;color:white;border:0;padding:7px 10px;
+ border-radius:5px
+}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{
+ padding:11px;border-bottom:1px solid #e2e8f0;
+ text-align:left;font-size:14px
+}
+th{background:#f8fafc;color:#475569}
+.badge{
+ display:inline-block;padding:4px 8px;border-radius:20px;
+ font-size:12px;font-weight:bold
+}
+.badge.pending{background:#fef3c7;color:#92400e}
+.badge.approved{background:#dcfce7;color:#166534}
+.badge.rejected{background:#fee2e2;color:#991b1b}
+.badge.admin{background:#dbeafe;color:#1e40af}
+.badge.hr{background:#ede9fe;color:#6d28d9}
+.badge.employee{background:#e0f2fe;color:#0369a1}
+.search{
+ margin-top:15px;display:grid;
+ grid-template-columns:2fr 1fr 1fr;gap:10px
+}
+.audit{
+ padding:10px;margin:7px 0;background:#f8fafc;
+ border-left:4px solid #2563eb;border-radius:4px
+}
+.audit small{color:#64748b}
+.empty{text-align:center;color:#94a3b8;padding:25px}
+.alert{
+ padding:10px;background:#fee2e2;color:#991b1b;
+ border-radius:6px;margin-top:10px;display:none
+}
+.salary{
+ font-family:monospace;letter-spacing:2px
+}
+.profile{
+ display:grid;grid-template-columns:120px 1fr;gap:20px
+}
+.avatar{
+ width:100px;height:100px;border-radius:50%;
+ background:#2563eb;color:white;display:flex;
+ align-items:center;justify-content:center;
+ font-size:35px;font-weight:bold
+}
+@media(max-width:900px){
+ .cards{grid-template-columns:repeat(2,1fr)}
+ .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+ .layout{display:block}
+ .sidebar{width:100%}
+ .cards{grid-template-columns:1fr}
+ .header{flex-direction:column;gap:10px}
+ .search{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="loginScreen">
+<div class="login-box">
+<h1>🔐 Secure HR</h1>
+<p>Employee Management Portal</p>
+
+<select id="loginRole">
+<option value="admin">Administrator</option>
+<option value="hr">HR Manager</option>
+<option value="employee">Employee</option>
+</select>
+
+<input id="loginUser" placeholder="Username">
+<input id="loginPass" type="password" placeholder="Password">
+
+<button class="login-btn" onclick="login()">Secure Login</button>
+
+<div class="alert" id="loginError">
+Invalid username or password.
+</div>
+
+<div class="demo">
+<b>Demo Credentials</b><br><br>
+Admin: admin / admin123<br>
+HR: hr / hr123<br>
+Employee: employee / emp123
+</div>
+</div>
+</div>
+
+
+<!-- APPLICATION -->
+<div class="app" id="app">
+
+<header class="header">
+<div>
+<h2>Secure HR Employee Management Portal</h2>
+<small>Human Resource Security System</small>
+</div>
+
+<div class="user-info">
+<span id="currentUser"></span>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<button class="active" onclick="openPage('dashboard',this)">
+📊 Dashboard
+</button>
+
+<button id="employeeMenu" onclick="openPage('employees',this)">
+👥 Employees
+</button>
+
+<button onclick="openPage('leaves',this)">
+🏖️ Leave Requests
+</button>
+
+<button id="salaryMenu" onclick="openPage('salary',this)">
+💰 Salary
+</button>
+
+<button onclick="openPage('audit',this)">
+🛡️ Audit Trail
+</button>
+
+<button onclick="openPage('profile',this)">
+👤 My Profile
+</button>
+
+</aside>
+
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+
+<h1>HR Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Employees</h3>
+<strong id="totalEmployees">0</strong>
+</div>
+
+<div class="card">
+<h3>Pending Leaves</h3>
+<strong id="pendingLeaves">0</strong>
+</div>
+
+<div class="card">
+<h3>Approved Leaves</h3>
+<strong id="approvedLeaves">0</strong>
+</div>
+
+<div class="card">
+<h3>Audit Events</h3>
+<strong id="auditCount">0</strong>
+</div>
+
+</div>
+
+<div class="panel">
+<h2>Security Status</h2>
+<p>🟢 Authentication: <b>Active</b></p>
+<p>🟢 Role-Based Access Control: <b>Enabled</b></p>
+<p>🟢 Audit Logging: <b>Enabled</b></p>
+<p>🟢 Session Status: <b>Authenticated</b></p>
+</div>
+
+</section>
+
+
+<!-- EMPLOYEES -->
+<section id="employees" class="page">
+
+<h1>Employee Management</h1>
+
+<div class="panel">
+
+<h2>Add Employee</h2>
+
+<div class="form-grid">
+
+<input id="empName" placeholder="Full Name">
+
+<input id="empEmail" type="email"
+placeholder="Email Address">
+
+<input id="empDepartment"
+placeholder="Department">
+
+<input id="empRole"
+placeholder="Job Role">
+
+<input id="empPhone"
+placeholder="Phone Number">
+
+<select id="empStatus">
+<option value="Active">Active</option>
+<option value="Inactive">Inactive</option>
+</select>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="addEmployee()">
++ Add Employee
+</button>
+
+</div>
+
+
+<div class="panel">
+
+<h2>Employee Records</h2>
+
+<div class="search">
+<input id="employeeSearch"
+placeholder="Search name or email..."
+oninput="renderEmployees()">
+
+<select id="departmentFilter"
+onchange="renderEmployees()">
+<option value="">All Departments</option>
+</select>
+
+<select id="statusFilter"
+onchange="renderEmployees()">
+<option value="">All Status</option>
+<option>Active</option>
+<option>Inactive</option>
+</select>
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Department</th>
+<th>Role</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="employeeTable"></tbody>
+
+</table>
+
+</div>
+</section>
+
+
+<!-- LEAVES -->
+<section id="leaves" class="page">
+
+<h1>Leave Management</h1>
+
+<div class="panel">
+
+<h2>Submit Leave Request</h2>
+
+<div class="form-grid">
+
+<input id="leaveEmployee"
+placeholder="Employee Name">
+
+<input id="leaveFrom"
+type="date">
+
+<input id="leaveTo"
+type="date">
+
+<select id="leaveType">
+<option>Casual Leave</option>
+<option>Sick Leave</option>
+<option>Emergency Leave</option>
+<option>Vacation</option>
+</select>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="addLeave()">
+Submit Request
+</button>
+
+</div>
+
+
+<div class="panel">
+
+<h2>Leave Requests</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Type</th>
+<th>From</th>
+<th>To</th>
+<th>Days</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="leaveTable"></tbody>
+
+</table>
+
+</div>
+</section>
+
+
+<!-- SALARY -->
+<section id="salary" class="page">
+
+<h1>Salary Management</h1>
+
+<div class="panel">
+
+<h2>Salary Record</h2>
+
+<div class="form-grid">
+
+<input id="salaryEmployee"
+placeholder="Employee Name">
+
+<input id="salaryAmount"
+type="number"
+placeholder="Monthly Salary">
+
+<select id="salaryMonth">
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
+<option>May</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option>October</option>
+<option>November</option>
+<option>December</option>
+</select>
+
+</div>
+
+<br>
+
+<button class="primary" onclick="addSalary()">
+Save Salary
+</button>
+
+</div>
+
+
+<div class="panel">
+
+<h2>Salary Records</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Month</th>
+<th>Salary</th>
+<th>Updated By</th>
+</tr>
+</thead>
+
+<tbody id="salaryTable"></tbody>
+
+</table>
+
+</div>
+</section>
+
+
+<!-- AUDIT -->
+<section id="audit" class="page">
+
+<h1>Security Audit Trail</h1>
+
+<div class="panel">
+
+<h2>System Activity</h2>
+
+<div id="auditList"></div>
+
+</div>
+
+</section>
+
+
+<!-- PROFILE -->
+<section id="profile" class="page">
+
+<h1>My Profile</h1>
+
+<div class="panel profile">
+
+<div class="avatar" id="avatar">A</div>
+
+<div>
+
+<h2 id="profileName">Administrator</h2>
+
+<p>
+<b>Role:</b>
+<span id="profileRole"></span>
+</p>
+
+<p>
+<b>Authentication:</b>
+Authenticated
+</p>
+
+<p>
+<b>Access Control:</b>
+Role Based
+</p>
+
+<p>
+<b>Session:</b>
+Active
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+</div>
+</div>
+
+
+<script>
+
+/* =========================
+   APPLICATION STATE
+========================= */
+
+const USERS = {
+ admin:{
+  username:"admin",
+  password:"admin123",
+  role:"Administrator"
+ },
+ hr:{
+  username:"hr",
+  password:"hr123",
+  role:"HR Manager"
+ },
+ employee:{
+  username:"employee",
+  password:"emp123",
+  role:"Employee"
+ }
+};
+
+let currentUser = null;
+
+let employees =
+ JSON.parse(localStorage.getItem("employees")) || [
+ {
+  id:"EMP001",
+  name:"Arun Kumar",
+  email:"arun@example.com",
+  department:"IT",
+  role:"Software Engineer",
+  phone:"9876543210",
+  status:"Active"
+ },
+ {
+  id:"EMP002",
+  name:"Priya Sharma",
+  email:"priya@example.com",
+  department:"HR",
+  role:"HR Executive",
+  phone:"9876543211",
+  status:"Active"
+ }
+];
+
+let leaves =
+ JSON.parse(localStorage.getItem("leaves")) || [];
+
+let salaries =
+ JSON.parse(localStorage.getItem("salaries")) || [];
+
+let audits =
+ JSON.parse(localStorage.getItem("audits")) || [];
+
+
+/* =========================
+   STORAGE
+========================= */
+
+function saveData(){
+
+ localStorage.setItem(
+  "employees",
+  JSON.stringify(employees)
+ );
+
+ localStorage.setItem(
+  "leaves",
+  JSON.stringify(leaves)
+ );
+
+ localStorage.setItem(
+  "salaries",
+  JSON.stringify(salaries)
+ );
+
+ localStorage.setItem(
+  "audits",
+  JSON.stringify(audits
+ ));
+
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+function login(){
+
+ const role =
+ document.getElementById("loginRole").value;
+
+ const username =
+ document.getElementById("loginUser").value.trim();
+
+ const password =
+ document.getElementById("loginPass").value;
+
+ const account = USERS[role];
+
+ if(
+ account &&
+ username === account.username &&
+ password === account.password
+ ){
+
+  currentUser = {
+   username,
+   role:account.role,
+   type:role
+  };
+
+  sessionStorage.setItem(
+   "hrUser",
+   JSON.stringify(currentUser)
+  );
+
+  document.getElementById(
+   "loginScreen"
+  ).style.display="none";
+
+  document.getElementById(
+   "app"
+  ).style.display="block";
+
+  setupUser();
+
+  addAudit(
+   "LOGIN",
+   "Successful login by "+username
+  );
+
+ }else{
+
+  document.getElementById(
+   "loginError"
+  ).style.display="block";
+
+ }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+ addAudit(
+  "LOGOUT",
+  "User logged out"
+ );
+
+ sessionStorage.removeItem("hrUser");
+
+ location.reload();
+
+}
+
+
+/* =========================
+   USER SETUP
+========================= */
+
+function setupUser(){
+
+ document.getElementById(
+  "currentUser"
+ ).innerHTML =
+ currentUser.username+
+ " ("+currentUser.role+")";
+
+ document.getElementById(
+  "profileName"
+ ).textContent =
+ currentUser.username;
+
+ document.getElementById(
+  "profileRole"
+ ).textContent =
+ currentUser.role;
+
+ document.getElementById(
+  "avatar"
+ ).textContent =
+ currentUser.username
+ .charAt(0)
+ .toUpperCase();
+
+ /* Employee restrictions */
+
+ if(currentUser.type==="employee"){
+
+  document.getElementById(
+   "employeeMenu"
+  ).style.display="none";
+
+  document.getElementById(
+   "salaryMenu"
+  ).style.display="none";
+
+ }
+
+}
+
+
+/* =========================
+   PAGE NAVIGATION
+========================= */
+
+function openPage(page,button){
+
+ document.querySelectorAll(".page")
+ .forEach(p=>p.classList.remove("active"));
+
+ document.getElementById(page)
+ .classList.add("active");
+
+ document.querySelectorAll(".sidebar button")
+ .forEach(b=>b.classList.remove("active"));
+
+ button.classList.add("active");
+
+ if(page==="employees")
+  renderEmployees();
+
+ if(page==="leaves")
+  renderLeaves();
+
+ if(page==="salary")
+  renderSalary();
+
+ if(page==="audit")
+  renderAudits();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   EMPLOYEE MANAGEMENT
+========================= */
+
+function addEmployee(){
+
+ if(
+ currentUser.type!=="admin" &&
+ currentUser.type!=="hr"
+ ){
+
+  alert("Access denied.");
+
+  addAudit(
+   "ACCESS_DENIED",
+   "Unauthorized employee creation attempt"
+  );
+
+  return;
+
+ }
+
+ const name =
+ document.getElementById("empName").value.trim();
+
+ const email =
+ document.getElementById("empEmail").value.trim();
+
+ const department =
+ document.getElementById(
+  "empDepartment"
+ ).value.trim();
+
+ const role =
+ document.getElementById("empRole").value.trim();
+
+ const phone =
+ document.getElementById("empPhone").value.trim();
+
+ const status =
+ document.getElementById("empStatus").value;
+
+
+ if(!name || !email || !department || !role){
+
+  alert("Please complete all required fields.");
+
+  return;
+
+ }
+
+ if(!email.includes("@")){
+
+  alert("Enter a valid email.");
+
+  return;
+
+ }
+
+ const duplicate =
+ employees.some(
+  e=>e.email.toLowerCase()===email.toLowerCase()
+ );
+
+ if(duplicate){
+
+  alert("Employee email already exists.");
+
+  return;
+
+ }
+
+ const id =
+ "EMP"+String(
+  employees.length+1
+ ).padStart(3,"0");
+
+ employees.push({
+  id,
+  name,
+  email,
+  department,
+  role,
+  phone,
+  status
+ });
+
+ saveData();
+
+ addAudit(
+  "CREATE_EMPLOYEE",
+  "Created employee "+name
+ );
+
+ clearEmployeeForm();
+
+ renderEmployees();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   DELETE EMPLOYEE
+========================= */
+
+function deleteEmployee(id){
+
+ if(currentUser.type!=="admin"){
+
+  alert("Only administrators can delete employees.");
+
+  addAudit(
+   "ACCESS_DENIED",
+   "Unauthorized employee deletion attempt"
+  );
+
+  return;
+
+ }
+
+ const employee =
+ employees.find(e=>e.id===id);
+
+ if(!employee)return;
+
+ if(
+ !confirm(
+  "Delete "+employee.name+" permanently?"
+ )
+ )return;
+
+ employees =
+ employees.filter(e=>e.id!==id);
+
+ saveData();
+
+ addAudit(
+  "DELETE_EMPLOYEE",
+  "Deleted employee "+employee.name
+ );
+
+ renderEmployees();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   EMPLOYEE TABLE
+========================= */
+
+function renderEmployees(){
+
+ const table =
+ document.getElementById(
+  "employeeTable"
+ );
+
+ const search =
+ document.getElementById(
+  "employeeSearch"
+ ).value.toLowerCase();
+
+ const department =
+ document.getElementById(
+  "departmentFilter"
+ ).value;
+
+ const status =
+ document.getElementById(
+  "statusFilter"
+ ).value;
+
+ updateDepartments();
+
+ const filtered =
+ employees.filter(e=>{
+
+  const matchesSearch =
+  e.name.toLowerCase().includes(search) ||
+  e.email.toLowerCase().includes(search);
+
+  const matchesDepartment =
+  !department ||
+  e.department===department;
+
+  const matchesStatus =
+  !status ||
+  e.status===status;
+
+  return(
+   matchesSearch &&
+   matchesDepartment &&
+   matchesStatus
+  );
+
+ });
+
+
+ if(filtered.length===0){
+
+  table.innerHTML=
+  `<tr><td colspan="7" class="empty">
+  No employees found
+  </td></tr>`;
+
+  return;
+
+ }
+
+
+ table.innerHTML =
+ filtered.map(e=>`
+
+ <tr>
+
+ <td>${e.id}</td>
+
+ <td><b>${escapeHTML(e.name)}</b></td>
+
+ <td>${escapeHTML(e.email)}</td>
+
+ <td>${escapeHTML(e.department)}</td>
+
+ <td>${escapeHTML(e.role)}</td>
+
+ <td>
+ <span class="badge ${
+  e.status==="Active"
+  ?"approved":"rejected"
+ }">
+ ${e.status}
+ </span>
+ </td>
+
+ <td>
+
+ ${
+ currentUser.type==="admin"
+ ?
+ `<button class="danger"
+ onclick="deleteEmployee('${e.id}')">
+ Delete
+ </button>`
+ :
+ `<button class="secondary"
+ onclick="viewEmployee('${e.id}')">
+ View
+ </button>`
+ }
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* =========================
+   DEPARTMENT FILTER
+========================= */
+
+function updateDepartments(){
+
+ const select =
+ document.getElementById(
+  "departmentFilter"
+ );
+
+ const current = select.value;
+
+ const departments =
+ [...new Set(
+  employees.map(e=>e.department)
+ )];
+
+ select.innerHTML =
+ `<option value="">All Departments</option>`+
+ departments.map(d=>
+ `<option>${escapeHTML(d)}</option>`
+ ).join("");
+
+ select.value=current;
+
+}
+
+
+/* =========================
+   VIEW EMPLOYEE
+========================= */
+
+function viewEmployee(id){
+
+ const e =
+ employees.find(x=>x.id===id);
+
+ if(!e)return;
+
+ alert(
+ `Employee Information\n\n`+
+ `ID: ${e.id}\n`+
+ `Name: ${e.name}\n`+
+ `Department: ${e.department}\n`+
+ `Role: ${e.role}\n`+
+ `Status: ${e.status}`
+ );
+
+ addAudit(
+  "VIEW_EMPLOYEE",
+  "Viewed employee "+e.id
+ );
+
+}
+
+
+/* =========================
+   LEAVE REQUEST
+========================= */
+
+function addLeave(){
+
+ const name =
+ document.getElementById(
+  "leaveEmployee"
+ ).value.trim();
+
+ const from =
+ document.getElementById(
+  "leaveFrom"
+ ).value;
+
+ const to =
+ document.getElementById(
+  "leaveTo"
+ ).value;
+
+ const type =
+ document.getElementById(
+  "leaveType"
+ ).value;
+
+
+ if(!name || !from || !to){
+
+  alert("Complete all leave details.");
+
+  return;
+
+ }
+
+ if(new Date(to)<new Date(from)){
+
+  alert("End date cannot be before start date.");
+
+  return;
+
+ }
+
+ const days =
+ Math.floor(
+  (new Date(to)-new Date(from))
+  /(1000*60*60*24)
+ )+1;
+
+
+ leaves.push({
+
+  id:"LV"+Date.now(),
+
+  employee:name,
+
+  type,
+
+  from,
+
+  to,
+
+  days,
+
+  status:"Pending",
+
+  requestedBy:currentUser.username
+
+ });
+
+ saveData();
+
+ addAudit(
+  "LEAVE_REQUEST",
+  name+" requested "+days+" day(s)"
+ );
+
+ document.getElementById(
+  "leaveEmployee"
+ ).value="";
+
+ document.getElementById(
+  "leaveFrom"
+ ).value="";
+
+ document.getElementById(
+  "leaveTo"
+ ).value="";
+
+ renderLeaves();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   LEAVE TABLE
+========================= */
+
+function renderLeaves(){
+
+ const table =
+ document.getElementById(
+  "leaveTable"
+ );
+
+ if(!leaves.length){
+
+  table.innerHTML=
+  `<tr><td colspan="7"
+  class="empty">No leave requests</td></tr>`;
+
+  return;
+
+ }
+
+ table.innerHTML =
+ leaves.map(l=>`
+
+ <tr>
+
+ <td>${escapeHTML(l.employee)}</td>
+
+ <td>${l.type}</td>
+
+ <td>${l.from}</td>
+
+ <td>${l.to}</td>
+
+ <td>${l.days}</td>
+
+ <td>
+ <span class="badge ${l.status.toLowerCase()}">
+ ${l.status}
+ </span>
+ </td>
+
+ <td>
+
+ ${
+ currentUser.type==="admin" ||
+ currentUser.type==="hr"
+ ?
+
+ `<button class="success"
+ onclick="updateLeave('${l.id}','Approved')">
+ Approve
+ </button>
+
+ <button class="danger"
+ onclick="updateLeave('${l.id}','Rejected')">
+ Reject
+ </button>`
+
+ : "View Only"
+
+ }
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* =========================
+   APPROVE / REJECT LEAVE
+========================= */
+
+function updateLeave(id,status){
+
+ if(
+ currentUser.type!=="admin" &&
+ currentUser.type!=="hr"
+ ){
+
+  alert("Access denied.");
+
+  return;
+
+ }
+
+ const leave =
+ leaves.find(l=>l.id===id);
+
+ if(!leave)return;
+
+ leave.status=status;
+
+ saveData();
+
+ addAudit(
+  "LEAVE_"+status.toUpperCase(),
+  leave.employee+
+  " leave request "+status
+ );
+
+ renderLeaves();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   SALARY
+========================= */
+
+function addSalary(){
+
+ if(
+ currentUser.type!=="admin" &&
+ currentUser.type!=="hr"
+ ){
+
+  alert("Access denied.");
+
+  addAudit(
+   "ACCESS_DENIED",
+   "Unauthorized salary modification"
+  );
+
+  return;
+
+ }
+
+ const employee =
+ document.getElementById(
+  "salaryEmployee"
+ ).value.trim();
+
+ const amount =
+ document.getElementById(
+  "salaryAmount"
+ ).value;
+
+ const month =
+ document.getElementById(
+  "salaryMonth"
+ ).value;
+
+
+ if(!employee || !amount){
+
+  alert("Enter employee and salary.");
+
+  return;
+
+ }
+
+ salaries.push({
+
+  id:"SAL"+Date.now(),
+
+  employee,
+
+  amount:Number(amount),
+
+  month,
+
+  updatedBy:currentUser.username
+
+ });
+
+ saveData();
+
+ addAudit(
+  "SALARY_UPDATE",
+  "Salary updated for "+employee
+ );
+
+ document.getElementById(
+  "salaryEmployee"
+ ).value="";
+
+ document.getElementById(
+  "salaryAmount"
+ ).value="";
+
+ renderSalary();
+
+}
+
+
+/* =========================
+   SALARY TABLE
+========================= */
+
+function renderSalary(){
+
+ const table =
+ document.getElementById(
+  "salaryTable"
+ );
+
+ if(!salaries.length){
+
+  table.innerHTML=
+  `<tr><td colspan="4"
+  class="empty">No salary records</td></tr>`;
+
+  return;
+
+ }
+
+ table.innerHTML =
+ salaries.map(s=>`
+
+ <tr>
+
+ <td>${escapeHTML(s.employee)}</td>
+
+ <td>${s.month}</td>
+
+ <td class="salary">
+ ₹ ${Number(s.amount)
+ .toLocaleString("en-IN")}
+ </td>
+
+ <td>${escapeHTML(s.updatedBy)}</td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* =========================
+   AUDIT LOGGING
+========================= */
+
+function addAudit(action,description){
+
+ const entry={
+
+  id:"AUD"+Date.now(),
+
+  time:new Date()
+  .toLocaleString(),
+
+  user:currentUser
+  ?currentUser.username
+  :"SYSTEM",
+
+  action,
+
+  description
+
+ };
+
+ audits.unshift(entry);
+
+ /* Keep audit storage controlled */
+
+ if(audits.length>500){
+
+  audits.length=500;
+
+ }
+
+ saveData();
+
+ renderAudits();
+
+ updateDashboard();
+
+}
+
+
+/* =========================
+   AUDIT TABLE
+========================= */
+
+function renderAudits(){
+
+ const container =
+ document.getElementById(
+  "auditList"
+ );
+
+ if(!audits.length){
+
+  container.innerHTML=
+  `<div class="empty">
+  No audit events.
+  </div>`;
+
+  return;
+
+ }
+
+ container.innerHTML =
+ audits.map(a=>`
+
+ <div class="audit">
+
+ <b>${escapeHTML(a.action)}</b>
+
+ <br>
+
+ ${escapeHTML(a.description)}
+
+ <br>
+
+ <small>
+ User: ${escapeHTML(a.user)}
+ |
+ ${escapeHTML(a.time)}
+ </small>
+
+ </div>
+
+ `).join("");
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function updateDashboard(){
+
+ document.getElementById(
+  "totalEmployees"
+ ).textContent=
+ employees.length;
+
+ document.getElementById(
+  "pendingLeaves"
+ ).textContent=
+ leaves.filter(
+  l=>l.status==="Pending"
+ ).length;
+
+ document.getElementById(
+  "approvedLeaves"
+ ).textContent=
+ leaves.filter(
+  l=>l.status==="Approved"
+ ).length;
+
+ document.getElementById(
+  "auditCount"
+ ).textContent=
+ audits.length;
+
+}
+
+
+/* =========================
+   FORM CLEAR
+========================= */
+
+function clearEmployeeForm(){
+
+ [
+  "empName",
+  "empEmail",
+  "empDepartment",
+  "empRole",
+  "empPhone"
+ ].forEach(id=>{
+  document.getElementById(id).value="";
+ });
+
+}
+
+
+/* =========================
+   HTML SECURITY
+========================= */
+
+function escapeHTML(value){
+
+ return String(value)
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;")
+ .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================
+   SESSION RESTORE
+========================= */
+
+function restoreSession(){
+
+ const saved =
+ sessionStorage.getItem("hrUser");
+
+ if(saved){
+
+  currentUser=
+  JSON.parse(saved);
+
+  document.getElementById(
+   "loginScreen"
+  ).style.display="none";
+
+  document.getElementById(
+   "app"
+  ).style.display="block";
+
+  setupUser();
+
+ }
+
+}
+
+
+/* =========================
+   INITIALIZATION
+========================= */
+
+restoreSession();
+
+renderEmployees();
+renderLeaves();
+renderSalary();
+renderAudits();
+updateDashboard();
+
+</script>
+
+</body>
+</html>
